@@ -26,10 +26,10 @@ class Payment:
  
     def Display_Details(self): 
        root.destroy() 
-       import Display_Details 
+       from Administration import Display_Details 
  
  
 root=Tk() 
-root.title("Welcome To Tkinter GUI Programme") 
+root.title("Step 4: Payment Options") 
 obj=Payment(root) 
 root.mainloop()

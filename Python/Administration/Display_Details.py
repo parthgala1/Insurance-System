@@ -28,6 +28,6 @@ class Display:
          
  
 root=Tk() 
-root.title("Welcome To Next Window") 
+root.title("Your Details") 
 obj=next(root) 
 root.mainloop() 

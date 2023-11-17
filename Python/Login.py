@@ -30,6 +30,6 @@ class Login:
  
  
 root=Tk() 
-root.title("Welcome To Tkinter GUI Programme") 
+root.title("Login") 
 obj=Login(root) 
 root.mainloop() 

@@ -26,10 +26,10 @@ class Insurance:
  
     def Payment_Details(self): 
        root.destroy() 
-       import Payment_Details 
+       from Administration import Payment_Details 
  
  
 root=Tk() 
-root.title("Welcome To Tkinter GUI Programme") 
+root.title("Step 3: Insurance Selection") 
 obj=Insurance(root) 
 root.mainloop()

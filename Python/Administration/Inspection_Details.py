@@ -26,10 +26,10 @@ class Inspection:
  
     def Insurance_Details(self): 
        root.destroy() 
-       import Insurance_Details 
+       from Administration import Insurance_Details 
  
  
 root=Tk() 
-root.title("Welcome To Tkinter GUI Programme") 
+root.title("Step 2: Inspection and Accident") 
 obj=Inspection(root) 
 root.mainloop()
