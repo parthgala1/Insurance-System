@@ -11,6 +11,7 @@ create table customer(
 	cust_id varchar(250) primary key,
     cust_name varchar(250),
     cust_lisence varchar(250),
+    cust_pass varchar(250),
     c_id int,
     foreign key(c_id) references company(c_id)
 );
@@ -92,13 +93,13 @@ alter table emob
 	add primary key(e_id, e_mob);
 desc emob;
 create table insurance(
-	ip_id varchar(250) primary key,
+	ip_id varchar(250) primary key auto_increment,
     ip_amt int,
     ip_plan varchar(250),
     ip_date date,
     cust_id varchar(250),
     foreign key(cust_id) references customer(cust_id)
-);
+)AUTO_INCREMENT = 1000;
 desc insurance;
 create table bill(
 	b_id varchar(250) primary key,
@@ -118,3 +119,22 @@ create table inspection(
     foreign key(a_report) references accident(a_report)
 );
 desc inspection;
+desc company;
+insert into company
+values (1,'cardekho','3455612345','mumbai');
+select * from company;
+
+insert into customer
+values ('101','swayam','34556','swayam09',1);
+select * from customer;
+
+SELECT cust_name,cust_pass FROM customer where cust_name like 'swayam' and cust_pass like 'swayam09';
+desc insurance;
+alter table insurance 
+modify column ip_date varchar(250);
+
+alter table insurance 
+modify column ip_id  int default 1000 auto_increment;
+select * from insurance;
+alter table insurance 
+modify column ip_id  int  auto_increment;
