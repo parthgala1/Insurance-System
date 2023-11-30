@@ -2,7 +2,7 @@ import tkinter as tk
 import mysql.connector
 
 # Establish MySQL connection
-conn = mysql.connector.connect(user='root', password='#Swayam0920', host='localhost', database='insurance_company')
+conn = mysql.connector.connect(user='root', password='pass@123', host='localhost', database='insurance_company')
 cursor = conn.cursor()
 
 # Dictionary containing coverage plans, descriptions, amounts, and durations

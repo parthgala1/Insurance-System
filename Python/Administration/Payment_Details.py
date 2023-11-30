@@ -1,5 +1,6 @@
 from tkinter import *
 import mysql.connector
+import uuid
 
 conn = mysql.connector.connect(user='root', password='pass@123', host='localhost', database='insurance_company')
 cursor = conn.cursor()
@@ -63,19 +64,21 @@ class Payment:
         payment_type = "Online" if self.payment_var.get() == 1 else "Offline"
         selected_option = self.payment_options.get()
 
-        # Add your database insertion logic here using payment_type and selected_option
         try:
-            # Your MySQL connection details
-            conn = mysql.connector.connect(user='root', password='pass@123', host='localhost', database='insurance_company')
-            cursor = conn.cursor()
+            unique_id = str(uuid.uuid4())[:25]  # Limiting to 25 characters
+            print(f"Inserting into 'payment' table with p_id: {unique_id}")
+            cursor.execute(f"INSERT INTO payment (p_id, p_amt) VALUES ('{unique_id}', 100)")
+            conn.commit()
+            
+            print(f"Inserted into 'payment' table with p_id: {payment_type}")
 
-            # Your MySQL insertion query
-            query = "INSERT INTO payment (payment_type, payment_option) VALUES (%s, %s)"
-            data = (payment_type, selected_option)
-            cursor.execute(query, data)
+            if payment_type == "Online":
+                print(f"Inserting into 'Online' table with p_id: {payment_type}")
+                cursor.execute(f"INSERT INTO Online ( on_UPI, on_card, on_netb) VALUES ('UPI_value', 'Card_value', 'Netbanking_value')")
+            else:
+                cursor.execute(f"INSERT INTO Offline ( of_cheque, of_cash) VALUES ('Cheque_value', 'Cash_value')")
 
             conn.commit()
-            conn.close()
 
             print("Data Inserted")
             self.Display_Details()
@@ -83,9 +86,6 @@ class Payment:
         except Exception as e:
             print("Error:", e)
             conn.rollback()
-        print("Data Inserted")
-        conn.close()
-        self.Display_Details()
 
     def Display_Details(self): 
         self.root.destroy() 
