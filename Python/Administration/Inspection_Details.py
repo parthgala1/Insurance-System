@@ -1,62 +1,77 @@
-from tkinter import *
+import tkinter as tk
 import mysql.connector
 
 conn = mysql.connector.connect(user='root', password='pass@123', host='localhost', database='insurance_company')
 cursor = conn.cursor()
 class Inspection: 
-    def __init__(self, root): 
-        self.f = Frame(root, height=500, width=500, bg='#87CEEB')  # Sky Blue background
-        self.f.pack()
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Insurance Company - Inspection and Accident")
         
-        # Set Times New Roman font
-        font_times_new_roman = ('Times New Roman', 12)
-        
-        # Accident Details
-        self.l_accident = Label(self.f, text='Accident Details', font=('Times New Roman', 16, 'bold'), bg='#87CEEB', fg='black')  # Bold and black text
-        self.l_date = Label(self.f, text='Date:', font=font_times_new_roman, bg='#87CEEB', fg='black')
-        self.e_date = Entry(self.f, font=font_times_new_roman, bg='#B0C4DE', fg='black')  # Light Steel Blue entry background
-        self.l_time = Label(self.f, text='Time:', font=font_times_new_roman, bg='#87CEEB', fg='black')
-        self.e_time = Entry(self.f, font=font_times_new_roman, bg='#B0C4DE', fg='black')
-        self.l_place = Label(self.f, text='Place:', font=font_times_new_roman, bg='#87CEEB', fg='black')
-        self.e_place = Entry(self.f, font=font_times_new_roman, bg='#B0C4DE', fg='black')
-        
-        # Services
-        self.l_services = Label(self.f, text='Services:', font=('Times New Roman', 14, 'underline'), bg='#87CEEB', fg='black')
-        self.l_addon = Label(self.f, text='AddOns', font=font_times_new_roman, bg='#87CEEB', fg='black')
+        self.background_image = tk.PhotoImage(file="images/blue.png")  # Replace with your background image path
+
+        self.background_label = tk.Label(root, image=self.background_image)
+        self.background_label.place(x=0, y=0, relwidth=1, relheight=0.95)
+
+        self.acc_frame = tk.Frame(root, bg="#E0F4FF", highlightbackground="#F86F03", bd=5, relief=tk.SOLID)
+        self.acc_frame.place(relx=0.5, rely=0.5, anchor="center")
+
+        font_times_new_roman = ('Times New Roman', 14)
+
+        self.l_accident = tk.Label(self.acc_frame, text='Accident Details', font=('Times New Roman', 30, 'bold', 'italic'),
+                                bg='#E0F4FF', fg='#000')
+        self.l_date = tk.Label(self.acc_frame, text='Date:', font=font_times_new_roman, bg='#E0F4FF', fg='#000')
+        self.e_date = tk.Entry(self.acc_frame, font=font_times_new_roman, bg='#B0C4DE', fg='#000')
+        self.l_time = tk.Label(self.acc_frame, text='Time:', font=font_times_new_roman, bg='#E0F4FF', fg='#000')
+        self.e_time = tk.Entry(self.acc_frame, font=font_times_new_roman, bg='#B0C4DE', fg='#000')
+        self.l_place = tk.Label(self.acc_frame, text='Place:', font=font_times_new_roman, bg='#E0F4FF', fg='#000')
+        self.e_place = tk.Entry(self.acc_frame, font=font_times_new_roman, bg='#B0C4DE', fg='#000')
+
+        self.l_services = tk.Label(self.acc_frame, text='Services:', font=('Times New Roman', 14, 'underline'),
+                                bg='#E0F4FF', fg='#000')
+        self.l_addon = tk.Label(self.acc_frame, text='AddOns', font=font_times_new_roman, bg='#E0F4FF', fg='#000')
         self.addon_options = ['Car Wash', 'Polishing', 'Alignment']
-        self.addon_var = StringVar()
-        self.addon_menu = OptionMenu(self.f, self.addon_var, *self.addon_options)
-        self.l_customer_services = Label(self.f, text='Customer Services:', font=font_times_new_roman, bg='#87CEEB', fg='black')
-        self.customer_services_var = BooleanVar()
-        self.cb_customer_services = Checkbutton(self.f, text=' ', variable=self.customer_services_var, font=font_times_new_roman, bg='#87CEEB', fg='black')
+        self.addon_var = tk.StringVar()
+        self.addon_menu = tk.OptionMenu(self.acc_frame, self.addon_var, *self.addon_options)
+        self.l_customer_services = tk.Label(self.acc_frame, text='Customer Services:', font=font_times_new_roman,
+                                         bg='#E0F4FF', fg='#000')
+        self.customer_services_var = tk.BooleanVar()
+        self.cb_customer_services = tk.Checkbutton(self.acc_frame, text=' ', variable=self.customer_services_var,
+                                                 font=font_times_new_roman, bg='#E0F4FF', fg='#000')
+
+        self.b_create = tk.Button(self.acc_frame, text="Create Report", command=self.inspection_report(), font=font_times_new_roman,
+                                bg='#4682B4', fg='white')
         
-        # Inspection Report
-        self.l_inspection_report = Label(self.f, text='Accident Report', font=('Times New Roman', 16, 'bold'), bg='#87CEEB', fg='black')
-        self.t_inspection_report = Text(self.f, height=5, width=30, font=font_times_new_roman, bg='#B0C4DE', fg='black')  # Light Steel Blue text area background
-        
-        # Submit Button
-        self.b_submit = Button(self.f, text="Submit", command=self.display, font=font_times_new_roman, bg='#4682B4', fg='white')  # Steel Blue button
-        
-        # Placing widgets on the frame
-        self.l_accident.place(x=50, y=30)
-        self.l_date.place(x=50, y=60)
-        self.e_date.place(x=150, y=60)
-        self.l_time.place(x=50, y=90)
-        self.e_time.place(x=150, y=90)
-        self.l_place.place(x=50, y=120)
-        self.e_place.place(x=150, y=120)
-        
-        self.l_services.place(x=50, y=160)
-        self.l_addon.place(x=50, y=190)
-        self.addon_menu.place(x=100, y=185)
-        self.l_customer_services.place(x=50, y=220)
-        self.cb_customer_services.place(x=160, y=220)
-        
-        self.l_inspection_report.place(x=50, y=300)
-        self.t_inspection_report.place(x=50, y=330)
-        
-        self.b_submit.place(x=50, y=260)
-       
+        self.l_inspection_report = tk.Label(self.acc_frame, text='Accident Report', font=('Times New Roman', 16, 'bold'),
+                                         bg='#E0F4FF', fg='#000')
+        self.t_inspection_report = tk.Text(self.acc_frame, height=5, width=30, font=font_times_new_roman,
+                                        bg='#B0C4DE', fg='#000')
+
+        self.b_submit = tk.Button(self.acc_frame, text="Submit", command=self.display, font=font_times_new_roman,
+                                bg='#4682B4', fg='white')
+
+        self.grid_widgets()
+
+    def grid_widgets(self):
+        self.l_accident.grid(row=0, column=0, columnspan=2)
+        self.l_date.grid(row=2, column=0, sticky='e')
+        self.e_date.grid(row=2, column=1, padx=10)
+        self.l_time.grid(row=3, column=0, sticky='e')
+        self.e_time.grid(row=3, column=1, padx=10)
+        self.l_place.grid(row=4, column=0, sticky='e')
+        self.e_place.grid(row=4, column=1, padx=10)
+
+        self.l_services.grid(row=5, column=0, columnspan=2, pady=10)
+        self.l_addon.grid(row=6, column=0, sticky='e')
+        self.addon_menu.grid(row=6, column=1, padx=10)
+        self.l_customer_services.grid(row=7, column=0, columnspan=2, pady=10, sticky="w", padx=10)
+        self.cb_customer_services.grid(row=7, column=1, padx=10, sticky="s")
+
+        self.b_create.grid(row=9, column=0, columnspan=2, pady=10)
+        self.l_inspection_report.grid(row=10, column=0, columnspan=2, pady=10)
+        self.t_inspection_report.grid(row=11, column=0, columnspan=2, padx=10)
+        self.b_submit.grid(row=12, column=0, columnspan=2, pady=10)
+               
     def display(self):
         accident_date = self.e_date.get()
         accident_time = self.e_time.get()
@@ -64,10 +79,13 @@ class Inspection:
         
         addon_services = self.addon_var.get()
         customer_services = self.customer_services_var.get()
+        company_id = 1
         
         try: 
             # Assuming you have a table named 'inspection_report'
-            cursor.execute("INSERT INTO inspection_report (accident_date, accident_time, accident_place, addon_services, customer_services) VALUES (%s, %s, %s, %s, %s)", (accident_date, accident_time, accident_place, addon_services, customer_services))
+            car_no = cursor.execute("SELECT car_no FROM car where cust_id = 123")
+            cursor.execute("INSERT INTO accident(a_place, a_time, a_date, car_no) VALUES (%s, %s, %s, %s)", (accident_place, accident_time, accident_date, car_no))
+            cursor.execute("INSERT INTO services(s_addOn, s_cust, c_id) VALUES (%s, %s, %d)",(addon_services, customer_services, company_id))
             conn.commit() 
             print("Data Inserted") 
         except Exception as e: 
@@ -75,11 +93,12 @@ class Inspection:
             conn.rollback() 
         
         conn.close() 
-        self.inspection_report()
+        root.destroy()
+        import Insurance_Details
  
     def inspection_report(self): 
         try:
-            cursor.execute("SELECT * FROM inspection_report ORDER BY id DESC LIMIT 1")
+            cursor.execute("SELECT * FROM accident LIMIT 1")
             result = cursor.fetchone()
             if result:
                 report_text = f"Accident Date: {result[1]}\nAccident Time: {result[2]}\nAccident Place: {result[3]}\nAddOn Services: {result[4]}\nCustomer Services: {result[5]}"
@@ -88,7 +107,10 @@ class Inspection:
         except Exception as e:
             print(f"Error fetching inspection report: {e}")
 
-root = Tk() 
+root = tk.Tk() 
 root.title("Step 2: Inspection and Accident") 
+height = root.winfo_screenheight()
+width = root.winfo_screenwidth()
+root.geometry(f"{width}x{height}+0+0")
 obj = Inspection(root) 
 root.mainloop()

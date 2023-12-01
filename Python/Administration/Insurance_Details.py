@@ -1,5 +1,6 @@
 import tkinter as tk
 import mysql.connector
+from datetime import datetime
 
 # Establish MySQL connection
 conn = mysql.connector.connect(user='root', password='pass@123', host='localhost', database='insurance_company')
@@ -20,15 +21,16 @@ class Insurance:
         self.root = root
         self.selected_coverage = tk.StringVar(value=None)
         
-       
+        self.background_image = tk.PhotoImage(file="images/blue.png")  # Replace with your background image path
 
-        self.f = tk.Frame(root)
-        self.f.pack()
+        self.background_label = tk.Label(root, image=self.background_image)
+        self.background_label.place(x=0, y=0, relwidth=1, relheight=0.95)
 
-        self.inner_frame = tk.Frame(self.f, bg="#F0F0F0")
-        self.inner_frame.pack(padx=50, pady=30)
+        self.f = tk.Frame(root, bg="#E0F4FF", highlightbackground="#000", bd=5, relief=tk.SOLID)
+        self.f.place(relx=0.5, rely=0.5, anchor="center")
 
-        self.l1 = tk.Label(self.inner_frame, text='Insurance Coverage Plans', fg="#2B2B2B", font=("Arial", 28, "bold"), bg="#F0F0F0")
+
+        self.l1 = tk.Label(self.f, text='Insurance Coverage Plans', fg="#2B2B2B", font=("Times", 30, "bold", "italic"), bg="#E0F4FF")
         self.l1.grid(row=0, column=0, columnspan=3, pady=20)
 
         self.radio_buttons = []
@@ -36,28 +38,28 @@ class Insurance:
         self.duration_labels = []
 
         for i, (plan, info) in enumerate(coverage_info.items()):
-            rb = tk.Radiobutton(self.inner_frame, text=plan, variable=self.selected_coverage, value=plan, bg="#F0F0F0", font=("Arial", 14), anchor='w',
+            rb = tk.Radiobutton(self.f, text=plan, variable=self.selected_coverage, value=plan, bg="#E0F4FF", font=("Times", 14), anchor='w',
                                 command=lambda p=plan: self.show_description(p))
             rb.grid(row=i+1, column=0, sticky="w", padx=10, pady=5)
             self.radio_buttons.append(rb)
 
             amount_var = tk.DoubleVar(value=info['amount'])
-            amount_entry = tk.Entry(self.inner_frame, textvariable=amount_var, font=("Arial", 12), state='readonly')
+            amount_entry = tk.Entry(self.f, textvariable=amount_var, font=("Times", 14), state='readonly')
             amount_entry.grid(row=i+1, column=1, padx=10, pady=5)
             self.amount_entries.append((amount_var, amount_entry))
 
-            duration_label = tk.Label(self.inner_frame, text=info['duration'], bg="#F0F0F0", fg="#444444", font=("Arial", 12))
+            duration_label = tk.Label(self.f, text=info['duration'], bg="#E0F4FF", fg="#444444", font=("Times", 14))
             duration_label.grid(row=i+1, column=2, padx=10, pady=5)
             self.duration_labels.append(duration_label)
 
-        self.description_label = tk.Label(self.inner_frame, text="", wraplength=400, bg="#F0F0F0", fg="#444444", font=("Arial", 12))
+        self.description_label = tk.Label(self.f, text="", wraplength=400, bg="#E0F4FF", fg="#444444", font=("Times", 16))
         self.description_label.grid(row=len(coverage_info)+1, column=0, columnspan=3, pady=20)
 
-        self.b1 = tk.Button(self.inner_frame, text="Submit", command=self.display_and_close, bg="#4CAF50", fg="#FFFFFF", font=("Arial", 18, "bold"))
+        self.b1 = tk.Button(self.f, text="Submit", command=self.display_and_close, font=("Times", 16, "bold"), bg="#525FE1", fg="#FFF6F4")
         self.b1.grid(row=len(coverage_info)+2, column=0, columnspan=3, pady=30)
 
         # Adding Back Button
-        self.back_button = tk.Button(self.inner_frame, text="Back", command=self.check_payment, bg="#FF5722", fg="#FFFFFF", font=("Arial", 14, "bold"))
+        self.back_button = tk.Button(self.f, text="Back", command=self.check_payment, bg="#87C4FF", fg="#FFF6F4", font=("Times", 14, "bold"))
         self.back_button.grid(row=len(coverage_info)+3, column=0, columnspan=3, pady=10)
 
     def show_description(self, plan):
@@ -67,11 +69,17 @@ class Insurance:
         selected_coverage = self.selected_coverage.get()
 
         if selected_coverage:
-            print("Selected Coverage:", selected_coverage)
             # Perform database operations here using selected_coverage and its amount from coverage_info
             try:
-                cursor.execute("INSERT INTO insurance (ip_amt,ip_plan,ip_date) VALUES (%s, %s, %s)",
-                               (coverage_info[selected_coverage]['amount'],selected_coverage, coverage_info[selected_coverage]['duration']))
+                current_time = datetime.now().strftime('%H:%M')
+                print(type(coverage_info[selected_coverage]['amount']))
+                print(type(current_time))
+                
+                cursor.execute("INSERT INTO insurance (ip_amt,ip_plan,ip_date, cust_id) VALUES (%s, %s, %s, %s)",
+                               (coverage_info[selected_coverage]['amount'],selected_coverage, coverage_info[selected_coverage]['duration'], '123'))
+                print("Selected Coverage:", selected_coverage)
+                cursor.execute("INSERT INTO payment(p_amt, p_time, p_dur, cust_id) values(%s,%s,%s,%s)",
+                               (coverage_info[selected_coverage]['amount'], current_time, coverage_info[selected_coverage]['duration'], '123'))
                 conn.commit()
                 print("Data Inserted")
             except mysql.connector.Error as error:
@@ -97,7 +105,9 @@ def create_insurance_gui():
     root.title("Insurance Coverage") 
     obj = Insurance(root) 
     
-    root.geometry("700x550")  # Set window size
+    height = root.winfo_screenheight()
+    width = root.winfo_screenwidth()
+    root.geometry(f"{width}x{height}+0+0")  # Set window size
     
     root.mainloop()
 
