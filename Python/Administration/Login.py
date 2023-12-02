@@ -2,14 +2,14 @@ import tkinter as tk
 from tkinter import messagebox
 import mysql.connector
 
-conn = mysql.connector.connect(user='root', password='pass@123', host='localhost', database='insurance_company')
+conn = mysql.connector.connect(user='root', password='%Rachit404%', host='localhost', database='insurance_company')
 cursor = conn.cursor()
 
 class Login: 
     def __init__(self, root): 
         self.root = root
 
-        self.background_image = tk.PhotoImage(file="D:/College Notes/Car Insurance System/images/orange.png")  # Replace with your background image path
+        self.background_image = tk.PhotoImage(file="Insurance-System\images\orange.png")  # Replace with your background image path
 
         self.background_label = tk.Label(root, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
@@ -56,6 +56,15 @@ class Login:
         #cursor.execute(select cust_pass from customer)
         #cust_pass=cursor.fetchone()
         
+        cursor.execute(f"SELECT cust_id FROM customer where cust_name like \'{self.username}\' and cust_pass like\'{self.password}\' ;")
+        custid = cursor.fetchone()[0]
+        
+        file_path = "Insurance-System\Python\Administration\custid.txt"
+        with open(file_path, 'w') as file:
+        # Write content to the file
+            file.write(custid)
+            # The file is automatically closed when the 'with' block is exited
+
         cursor.execute(f"SELECT cust_name,cust_pass FROM customer where cust_name like \'{self.username}\' and cust_pass like\'{self.password}\' ;")
         user = cursor.fetchone()
         if user:

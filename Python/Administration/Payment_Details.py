@@ -2,7 +2,7 @@ from tkinter import *
 import mysql.connector
 import uuid
  
-conn = mysql.connector.connect(user='root', password='pass@123', host='localhost', database='insurance_company')
+conn = mysql.connector.connect(user='root', password='%Rachit404%', host='localhost', database='insurance_company')
 cursor = conn.cursor()
  
 class Payment:
@@ -14,7 +14,7 @@ class Payment:
         self.center_window()
         self.root.configure(bg="#e67e22")  # Orange background color
  
-        self.background_image = PhotoImage(file="images/blue.png")  # Replace with your background image path
+        self.background_image = PhotoImage(file="Insurance-System/images/blue.png")  # Replace with your background image path
 
         self.background_label = Label(root, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=0.95)
@@ -77,7 +77,12 @@ class Payment:
         # Submit Button
         self.b1 = Button(self.f, text="Submit", command=self.display, font=("Times", 16, "bold"), bg="#525FE1", fg="#FFF6F4")
         self.b1.grid(row=3, column=0, columnspan=2, pady=20, sticky="n")  # Changed sticky to "n" for centering below the table
- 
+
+        file_path = "Insurance-System\Python\Administration\custid.txt"
+        # Open the file in read mode ('r')
+        with open(file_path, 'r') as file:
+            cus_id = file.read(-1)
+            
     def center_window(self):
         window_width = self.root.winfo_reqwidth()
         window_height = self.root.winfo_reqheight()

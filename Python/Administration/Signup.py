@@ -3,14 +3,14 @@ from tkinter import *
 from tkinter import messagebox
 import mysql.connector
  
-conn = mysql.connector.connect(user='root', password='pass@123', host='localhost', database='insurance_company')
+conn = mysql.connector.connect(user='root', password='%Rachit404%', host='localhost', database='insurance_company')
 cursor = conn.cursor()
  
 class Sign:
  
     def __init__(self,root):
         self.root=root
-        self.background_image = tk.PhotoImage(file="images/orange.png")  # Replace with your background image path
+        self.background_image = tk.PhotoImage(file="Insurance-System\images\orange.png")  # Replace with your background image path
 
         self.background_label = tk.Label(root, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=0.95)
@@ -56,6 +56,11 @@ class Sign:
  
         self.login_btn = tk.Button(root, text="Login", command=self.login, font=("Times", 14, "bold", "italic"), bg="#FFF6F4", fg="#FD7926")
         self.login_btn.place(relx=0.025, rely=0.025)
+        
+        file_path = "Insurance-System\Python\Administration\custid.txt"
+        # Open the file in read mode ('r')
+        with open(file_path, 'r') as file:
+            cus_id = file.read(-1)
        
     def check_submit(self):
         passw = self.en_cust_pass.get()
@@ -72,9 +77,8 @@ class Sign:
         license1 = self.en_cust_license.get()
         mob = self.en_cust_mob.get()
         passw = self.en_cust_pass.get()  
-        repass = self.en_recust_pass.get()
-        cid = 101  
-        sql="Insert into customer(cust_id, cust_name, cust_lisence, cust_pass, c_id) values('%s','%s','%s','%s', %s)"%(uid,name,license1,passw,cid)
+        cid = 1  
+        sql="Insert into customer(cust_id, cust_name, cust_license, cust_pass, c_id) values('%s','%s','%s','%s', %s)"%(uid,name,license1,passw,cid)
         sql2="Insert into custmob(cust_id, cust_mob) values('%s','%s')"%(uid,mob)
  
         try:
@@ -82,9 +86,9 @@ class Sign:
             cursor.execute(sql2)
             conn.commit()
             print("Data Inserted")
-        except:
+        except Exception as e:
             conn.rollback()
-            print("Error")
+            print("Error", e)
         self.login()
            
     def login(self):

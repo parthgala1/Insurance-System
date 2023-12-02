@@ -2,15 +2,20 @@ from tkinter import *
 from tkinter import messagebox
 import mysql.connector
 
-conn = mysql.connector.connect(user='root', password='pass@123', host='localhost', database='insurance_company')
+conn = mysql.connector.connect(user='root', password='%Rachit404%', host='localhost', database='insurance_company')
 cursor = conn.cursor()
 
 class Display: 
     def __init__(self, root, canvas): 
         self.canvas = canvas        
-        self.background_image = PhotoImage(file="images/blue.png")  # Replace with your background image path
+        self.background_image = PhotoImage(file="Insurance-System/images/blue.png")  # Replace with your background image path
         self.background_label = Label(root, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=0.95)
+        
+        file_path = "Insurance-System\Python\Administration\custid.txt"
+        # Open the file in read mode ('r')
+        with open(file_path, 'r') as file:
+            self.cus_id = file.read(-1)
         
         self.f = Frame(root, bg="#E0F4FF", highlightbackground="#000", bd=5, relief=SOLID)
         self.f.place(relx=0.5, rely=0.45, anchor= "center")
@@ -29,7 +34,7 @@ class Display:
         
         self.name = Label(self.f, text="Name", font=('Times'), bg="#E0F4FF")
         self.name.grid(row=4, column=0, sticky="W") 
-        self.e2 = Entry(self.f, width=28, bg="#E0F4FF")
+        self.e2 = Entry(self.f, width=28)
         self.e2.grid(row=4, column=1, columnspan=3)
         
         self.licnum = Label(self.f, text="License Number", font=('Times'), bg="#E0F4FF")
@@ -121,6 +126,7 @@ class Display:
         self.final_amount_value_label = Label(self.bill_frame, text=f'₹ {final_amount:.2f}', font=("Times New Roman", 14, "bold"), bg="#E0F4FF", fg="black")
         self.final_amount_value_label.grid(row=3, column=1, sticky="w", pady=5, padx=20)
         
+        
         self.display()
         self.close_connection()
         
@@ -152,14 +158,14 @@ class Display:
     def display(self): 
         print("----------View records-----------")
         uid = 123
-        cursor.execute(f"SELECT * FROM customer where cust_id = {uid}")
+        cursor.execute(f"SELECT * FROM customer where cust_id = {self.cus_id}")
         rows = cursor.fetchall() 
         
-        cursor.execute(f"SELECT * FROM car where cust_id = {uid}")
+        cursor.execute(f"SELECT * FROM car where cust_id = {self.cus_id}")
         car_row = cursor.fetchall() 
         
         try:
-            cursor.execute("SELECT * FROM accident LIMIT 1")
+            cursor.execute(f"SELECT * FROM accident a, car c where c.car_no = a.car_no and c.car_no =(SELECT car_no FROM car where cust_id={self.cus_id})")
             result = cursor.fetchone()
             if result:
                 report_text = f"Accident Date: {result[1]}\nAccident Time: {result[2]}\nAccident Place: {result[3]}\nAddOn Services: {result[4]}\nCustomer Services: {result[5]}"
@@ -188,9 +194,10 @@ class Display:
                 # Car Info:
                 for row in car_row:
                     self.c1.insert(END, f"{row[0]}\n")
-                    self.c2.insert(END, f"{row[1]}\n")
-                    self.c3.insert(END, f"{row[2]}\n")
-                    self.e4.insert(END, f"{row[1]}\n")
+                    self.c2.insert(END, f"{row[2]}\n")
+                    self.c3.insert(END, f"{row[3]}\n")
+                    self.c4.insert(END, f"{row[1]}\n")
+                    print(row)
                         
                 self.c1.config(state="readonly")
                 self.c2.config(state="readonly")
