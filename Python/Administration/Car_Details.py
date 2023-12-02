@@ -4,13 +4,13 @@ import mysql.connector
 
 
  
-conn = mysql.connector.connect(user='root', password='pass@123', host='localhost', database='insurance_company')
+conn = mysql.connector.connect(user='root', password='%Rachit404%', host='localhost', database='insurance_company')
 cursor = conn.cursor()
  
 class Car:
     def __init__(self,root):
         self.root=root
-        self.background_image = PhotoImage(file="D:/College Notes/Car Insurance System/images/blue.png")  # Replace with your background image path
+        self.background_image = PhotoImage(file="Insurance-System/images/blue.png")  # Replace with your background image path
         self.background_label = Label(root, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
        
@@ -44,8 +44,13 @@ class Car:
         self.custid = Label(self.login_frame, text="Customer ID:", bg="#E0F4FF", font=("Times", 16, "bold"), fg="#000")
         self.custid.grid(row=5, column=0, padx=50, pady=5, sticky="w")
         self.en_cust_id = Entry(self.login_frame,  font=("Times", 16, "bold"))
-        #self.en_cust_id.insert(0,instance.en_cust_id)
-        #self.en_cust_id.config(state = "readonly")
+        file_path = "Insurance-System\Python\Administration\custid.txt"
+        # Open the file in read mode ('r')
+        with open(file_path, 'r') as file:
+            self.cus_id = file.read(-1)
+            
+        self.en_cust_id.insert(0,self.cus_id)
+        self.en_cust_id.config(state = "readonly")
         self.en_cust_id.grid(row=5, column=2, padx=5, pady=5)
        
         self.submit = tk.Button(self.login_frame, text="Submit", command=self.on_submit, font=("Times", 16, "bold"), bg="#525FE1", fg="#FFF6F4")
@@ -64,6 +69,15 @@ class Car:
         c_model = self.en_car_model.get()
         c_type = self.en_car_type.get()
         cust_id = self.en_cust_id.get()
+        
+        # sql = "Insert into car(car_no, car_owner, car_model, car_type, cust_id) values(%s,%s,%s,%s,%s)"%(c_no,c_own,c_model,c_type,"123")
+        try:
+            cursor.execute("Insert into car(car_no, car_owner, car_model, car_type, cust_id) values(%s,%s,%s,%s,%s)",(c_no,c_own,c_model,c_type,self.cus_id))
+            conn.commit()
+            print("Data Inserted")
+        except Exception as e:
+            conn.rollback()
+            print("Error: ",e)
         
         root.destroy()
         import Inspection_Details

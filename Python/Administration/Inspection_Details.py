@@ -1,14 +1,19 @@
 import tkinter as tk
 import mysql.connector
 
-conn = mysql.connector.connect(user='root', password='pass@123', host='localhost', database='insurance_company')
+conn = mysql.connector.connect(user='root', password='%Rachit404%', host='localhost', database='insurance_company')
 cursor = conn.cursor()
 class Inspection: 
     def __init__(self, root):
         self.root = root
         self.root.title("Insurance Company - Inspection and Accident")
         
-        self.background_image = tk.PhotoImage(file="images/blue.png")  # Replace with your background image path
+        file_path = "Insurance-System\Python\Administration\custid.txt"
+        # Open the file in read mode ('r')
+        with open(file_path, 'r') as file:
+            self.cus_id = file.read(-1)
+        
+        self.background_image = tk.PhotoImage(file="Insurance-System/images/blue.png")  # Replace with your background image path
 
         self.background_label = tk.Label(root, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=0.95)
@@ -31,10 +36,11 @@ class Inspection:
                                 bg='#E0F4FF', fg='#000')
         self.l_addon = tk.Label(self.acc_frame, text='AddOns', font=font_times_new_roman, bg='#E0F4FF', fg='#000')
         self.addon_options = ['Car Wash', 'Polishing', 'Alignment']
-        self.addon_var = tk.StringVar()
+        self.addon_var = tk.StringVar(root)
         self.addon_menu = tk.OptionMenu(self.acc_frame, self.addon_var, *self.addon_options)
         self.l_customer_services = tk.Label(self.acc_frame, text='Customer Services:', font=font_times_new_roman,
                                          bg='#E0F4FF', fg='#000')
+        self.addon_var.trace("w", self.on_dropdown_change)
         self.customer_services_var = tk.BooleanVar()
         self.cb_customer_services = tk.Checkbutton(self.acc_frame, text=' ', variable=self.customer_services_var,
                                                  font=font_times_new_roman, bg='#E0F4FF', fg='#000')
@@ -44,13 +50,19 @@ class Inspection:
         
         self.l_inspection_report = tk.Label(self.acc_frame, text='Accident Report', font=('Times New Roman', 16, 'bold'),
                                          bg='#E0F4FF', fg='#000')
-        self.t_inspection_report = tk.Text(self.acc_frame, height=5, width=30, font=font_times_new_roman,
-                                        bg='#B0C4DE', fg='#000')
+        self.accident_report_text = tk.StringVar()
+        self.l_accident_report_text = tk.Label(self.acc_frame, textvariable=self.accident_report_text, font=('Times New Roman', 14),
+                                          bg='#E0F4FF', fg='#000')
+        self.l_accident_report_text.grid(row=11, column=0, columnspan=2, padx=10)
 
         self.b_submit = tk.Button(self.acc_frame, text="Submit", command=self.display, font=font_times_new_roman,
                                 bg='#4682B4', fg='white')
 
         self.grid_widgets()
+        
+    def on_dropdown_change(self, *args):
+        selected_value = self.addon_var.get()
+        print("Selected value:", selected_value)
 
     def grid_widgets(self):
         self.l_accident.grid(row=0, column=0, columnspan=2)
@@ -69,8 +81,10 @@ class Inspection:
 
         self.b_create.grid(row=9, column=0, columnspan=2, pady=10)
         self.l_inspection_report.grid(row=10, column=0, columnspan=2, pady=10)
-        self.t_inspection_report.grid(row=11, column=0, columnspan=2, padx=10)
+        self.l_accident_report_text.grid(row=11, column=0, columnspan=2, padx=10)
         self.b_submit.grid(row=12, column=0, columnspan=2, pady=10)
+        
+        
                
     def display(self):
         accident_date = self.e_date.get()
@@ -81,9 +95,12 @@ class Inspection:
         customer_services = self.customer_services_var.get()
         company_id = 1
         
+        print(self.addon_var)
+
+        
         try: 
             # Assuming you have a table named 'inspection_report'
-            car_no = cursor.execute("SELECT car_no FROM car where cust_id = 123")
+            car_no = cursor.execute("SELECT car_no FROM car where cust_id = 101")
             cursor.execute("INSERT INTO accident(a_place, a_time, a_date, car_no) VALUES (%s, %s, %s, %s)", (accident_place, accident_time, accident_date, car_no))
             cursor.execute("INSERT INTO services(s_addOn, s_cust, c_id) VALUES (%s, %s, %d)",(addon_services, customer_services, company_id))
             conn.commit() 
@@ -98,12 +115,11 @@ class Inspection:
  
     def inspection_report(self): 
         try:
-            cursor.execute("SELECT * FROM accident LIMIT 1")
+            cursor.execute(f"SELECT * FROM accident a, car c where c.car_no = a.car_no and c.car_no =(SELECT car_no FROM car where cust_id={self.cus_id})")
             result = cursor.fetchone()
             if result:
                 report_text = f"Accident Date: {result[1]}\nAccident Time: {result[2]}\nAccident Place: {result[3]}\nAddOn Services: {result[4]}\nCustomer Services: {result[5]}"
-                self.t_inspection_report.delete(1.0, END)
-                self.t_inspection_report.insert(INSERT, report_text)
+                self.accident_report_text.set(report_text)
         except Exception as e:
             print(f"Error fetching inspection report: {e}")
 
