@@ -2,17 +2,17 @@ from tkinter import *
 from tkinter import messagebox
 import mysql.connector
 
-conn = mysql.connector.connect(user='root', password='%Rachit404%', host='localhost', database='insurance_company')
+conn = mysql.connector.connect(user='root', password='pass@123', host='localhost', database='insurance_company')
 cursor = conn.cursor()
 
 class Display: 
     def __init__(self, root, canvas): 
         self.canvas = canvas        
-        self.background_image = PhotoImage(file="Insurance-System/images/blue.png")  # Replace with your background image path
+        self.background_image = PhotoImage(file="images/blue.png")  # Replace with your background image path
         self.background_label = Label(root, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=0.95)
         
-        file_path = "Insurance-System\Python\Administration\custid.txt"
+        file_path = "Python/Administration/custid.txt"
         # Open the file in read mode ('r')
         with open(file_path, 'r') as file:
             self.cus_id = file.read(-1)
@@ -77,7 +77,7 @@ class Display:
         self.ip.grid(row=11, column=0, columnspan=4)
         # self.canvas.create_line(0, 361, 9000, 361, width=1)
         
-        self.ip1 = Text(self.f, height=7, width=50)
+        self.ip1 = Text(self.f, height=5, width=30, font=("Times", 16))
         self.ip1.grid(row=12, column=0, columnspan=4)
         
         # Accident Information Details
@@ -85,7 +85,7 @@ class Display:
         self.ac.grid(row=11, column=5, columnspan=4)
         # self.canvas.create_line(0, 501, 9000, 501, width=1)
         
-        self.ac1 = Text(self.f, height=7, width=50)
+        self.ac1 = Text(self.f, height=5, width=30, font=("Times", 18))
         self.ac1.grid(row=12, column=5, columnspan=4)
         
         
@@ -123,13 +123,19 @@ class Display:
         self.final_amount_label = Label(self.bill_frame, text=f'Final Amount: ', font=("Times New Roman", 14, "bold"), bg="#E0F4FF", fg="black")
         self.final_amount_label.grid(row=3, column=0, sticky="e", pady=5)
  
-        self.final_amount_value_label = Label(self.bill_frame, text=f'₹ {final_amount:.2f}', font=("Times New Roman", 14, "bold"), bg="#E0F4FF", fg="black")
+        self.final_amount_value_label = Label(self.bill_frame, text=f'₹ {final_amount}', font=("Times New Roman", 14, "bold"), bg="#E0F4FF", fg="black")
         self.final_amount_value_label.grid(row=3, column=1, sticky="w", pady=5, padx=20)
         
-        
         self.display()
-        self.close_connection()
         
+        self.submit = Button(self.f, text="DELETE", command=self.delete, font=("Times", 16, "bold"), bg="#525FE1", fg="#FFF6F4")
+        self.submit.grid(row=15, column=3,columnspan=3, pady=5, padx=50)
+        
+        
+    def delete(self):
+        table_group ={"Online", "Offline", "payment", "car", "customer", "insurance", "accident"}
+        for table in table_group:
+            cursor.execute(f"TRUNCATE TABLE {table}")
     def get_insurance_amount(self):
         try:
             cursor.execute("SELECT ip_amt FROM insurance LIMIT 1")
@@ -141,6 +147,8 @@ class Display:
         except Exception as e:
             print("Error fetching insurance amount:", e)
             return 0
+        
+        self.close_connection()
     
     # def get_insurance_report(self):
     #     try: 
@@ -164,14 +172,22 @@ class Display:
         cursor.execute(f"SELECT * FROM car where cust_id = {self.cus_id}")
         car_row = cursor.fetchall() 
         
-        try:
+        # try:
+        cursor.execute(f"SELECT * FROM accident a, car c where c.car_no = a.car_no and c.car_no =(SELECT car_no FROM car where cust_id={self.cus_id})")
+        result = cursor.fetchone()
+            
+        if result:
             cursor.execute(f"SELECT * FROM accident a, car c where c.car_no = a.car_no and c.car_no =(SELECT car_no FROM car where cust_id={self.cus_id})")
             result = cursor.fetchone()
-            if result:
-                report_text = f"Accident Date: {result[1]}\nAccident Time: {result[2]}\nAccident Place: {result[3]}\nAddOn Services: {result[4]}\nCustomer Services: {result[5]}"
-                self.ip1.insert(END, report_text)
-        except Exception as e:
-            print(f"Error fetching inspection report: {e}")
+            report_text = f"Accident Date: {result[1]}\nAccident Time: {result[2]}\nAccident Place: {result[3]}\n"
+            self.ac1.insert(END, report_text)
+        cursor.execute(f"SELECT * FROM insurance where cust_id={self.cus_id}")
+        result1 = cursor.fetchone()
+        if result1:
+            ip_report_text = f"Inspection Date: {result1[1]}\nInspection Time: {result1[2]}\nInspection Place: {result1[3]}\n"
+            self.ip1.insert(END, ip_report_text)
+        # except Exception as e:
+        #     print(f"Error fetching inspection report: {e}")
         
         try: 
             if len(rows) != 0:
@@ -203,9 +219,12 @@ class Display:
                 self.c2.config(state="readonly")
                 self.c3.config(state="readonly")
                 self.c4.config(state="readonly")
+                 
                 
         except Exception as e: 
             print(f"Error: {e}") 
+            
+        
 
     def close_connection(self):
         try:
@@ -214,6 +233,7 @@ class Display:
             print("Connection closed")
         except Exception as e:
             print(f"Error closing connection: {e}")
+            
 
 root = Tk()
 

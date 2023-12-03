@@ -3,7 +3,7 @@ import mysql.connector
 from datetime import datetime
 
 # Establish MySQL connection
-conn = mysql.connector.connect(user='root', password='%Rachit404%', host='localhost', database='insurance_company')
+conn = mysql.connector.connect(user='root', password='pass@123', host='localhost', database='insurance_company')
 cursor = conn.cursor()
 
 # Dictionary containing coverage plans, descriptions, amounts, and durations
@@ -21,12 +21,12 @@ class Insurance:
         self.root = root
         self.selected_coverage = tk.StringVar(value=None)
         
-        file_path = "Insurance-System\Python\Administration\custid.txt"
+        file_path = "Python/Administration/custid.txt"
         # Open the file in read mode ('r')
         with open(file_path, 'r') as file:
             self.cus_id = file.read(-1)
         
-        self.background_image = tk.PhotoImage(file="Insurance-System/images/blue.png")  # Replace with your background image path
+        self.background_image = tk.PhotoImage(file="images/blue.png")  # Replace with your background image path
 
         self.background_label = tk.Label(root, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=0.95)

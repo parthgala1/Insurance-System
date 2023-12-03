@@ -2,7 +2,7 @@ from tkinter import *
 import mysql.connector
 import uuid
  
-conn = mysql.connector.connect(user='root', password='%Rachit404%', host='localhost', database='insurance_company')
+conn = mysql.connector.connect(user='root', password='pass@123', host='localhost', database='insurance_company')
 cursor = conn.cursor()
  
 class Payment:
@@ -14,11 +14,11 @@ class Payment:
         self.center_window()
         self.root.configure(bg="#e67e22")  # Orange background color
  
-        self.background_image = PhotoImage(file="Insurance-System/images/blue.png")  # Replace with your background image path
-
+        self.background_image = PhotoImage(file="images/blue.png")  # Replace with your background image path
+ 
         self.background_label = Label(root, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=0.95)
-        
+       
         self.f = Frame(root, bg="#E0F4FF", highlightbackground="#000", bd=5, relief=SOLID)  # Orange background color
         self.f.place(relx=0.5, rely=0.5, anchor="center")
  
@@ -73,16 +73,17 @@ class Payment:
         self.payment_menu = OptionMenu(self.bill_frame, self.payment_options, "")
         self.payment_menu.grid(row=4, column=0, columnspan=2, pady=5, sticky='ew')
         self.payment_menu.config(state=DISABLED)
+        print(self.payment_options.get())
  
         # Submit Button
         self.b1 = Button(self.f, text="Submit", command=self.display, font=("Times", 16, "bold"), bg="#525FE1", fg="#FFF6F4")
         self.b1.grid(row=3, column=0, columnspan=2, pady=20, sticky="n")  # Changed sticky to "n" for centering below the table
-
-        file_path = "Insurance-System\Python\Administration\custid.txt"
+ 
+        file_path = "Python/Administration/custid.txt"
         # Open the file in read mode ('r')
         with open(file_path, 'r') as file:
             cus_id = file.read(-1)
-            
+           
     def center_window(self):
         window_width = self.root.winfo_reqwidth()
         window_height = self.root.winfo_reqheight()
@@ -123,21 +124,26 @@ class Payment:
         selected_option = self.payment_options.get()
  
         try:
-            print(f"Inserting into 'payment' table with p_id")
+            #print(f"Inserting into 'payment' table with p_id")
             cursor.execute("SELECT p_id from payment LIMIT 1")
             sel = cursor.fetchmany()
-            print(sel)
+            #print(sel)
             cursor.execute(f"UPDATE payment SET p_amt = {self.final_amount}")
             conn.commit()
-           
-            print(f"Inserted into 'payment' table with p_id: {payment_type}")
- 
+            mode = self.payment_options.get()
+             
             if payment_type == "Online":
-                print(f"Inserting into 'Online' table with p_id: {payment_type}")
-                cursor.execute(f"INSERT INTO Online ( on_UPI, on_card, on_netb) VALUES ('UPI_value', 'Card_value', 'Netbanking_value')")
+                if mode == "Card":
+                    cursor.execute(f"INSERT INTO Online (on_card) VALUES ('Card_value')")
+                if mode == "Netbanking":
+                    cursor.execute(f"INSERT INTO Online (on_netb) VALUES ('Netbanking_value')")
+                if mode == "UPI":
+                    cursor.execute(f"INSERT INTO Online (on_UPI) VALUES ('UPI_value')")                
             else:
-                cursor.execute(f"INSERT INTO Offline ( of_cheque, of_cash) VALUES ('Cheque_value', 'Cash_value')")
- 
+                if mode == "Cheque":
+                    cursor.execute(f"INSERT INTO Offline ( of_cheque) VALUES ('Cheque_value')")
+                if mode == "Cash":
+                    cursor.execute(f"INSERT INTO Offline ( of_cash) VALUES ('Cash_value')")
             conn.commit()
  
             print("Data Inserted")
@@ -157,4 +163,3 @@ height = root.winfo_screenheight()
 width = root.winfo_screenwidth()
 root.geometry(f"{width}x{height}+0+0")
 root.mainloop()
- 

@@ -30,7 +30,8 @@ class Inspection:
         self.e_date = tk.Entry(self.acc_frame, font=font_times_new_roman, bg='#B0C4DE', fg='#000')
         self.l_time = tk.Label(self.acc_frame, text='Time:', font=font_times_new_roman, bg='#E0F4FF', fg='#000')
         self.current_time = datetime.now().strftime('%H:%M')
-        self.e_time = tk.Entry(self.acc_frame,text=self.current_time, font=font_times_new_roman, bg='#B0C4DE', fg='#000')
+        print(self.current_time)
+        self.e_time = tk.Entry(self.acc_frame, font=font_times_new_roman, bg='#B0C4DE', fg='#000')
         self.l_place = tk.Label(self.acc_frame, text='Place:', font=font_times_new_roman, bg='#E0F4FF', fg='#000')
         self.e_place = tk.Entry(self.acc_frame, font=font_times_new_roman, bg='#B0C4DE', fg='#000')
 
@@ -46,6 +47,9 @@ class Inspection:
         self.customer_services_var = tk.BooleanVar()
         self.cb_customer_services = tk.Checkbutton(self.acc_frame, text=' ', variable=self.customer_services_var,
                                                  font=font_times_new_roman, bg='#E0F4FF', fg='#000')
+
+        self.b_create = tk.Button(self.acc_frame, text="Create Report", command=self.inspection_report(), font=font_times_new_roman,
+                                bg='#4682B4', fg='white')
         
         self.l_inspection_report = tk.Label(self.acc_frame, text='Accident Report', font=('Times New Roman', 16, 'bold'),
                                          bg='#E0F4FF', fg='#000')
@@ -78,6 +82,7 @@ class Inspection:
         self.l_customer_services.grid(row=7, column=0, columnspan=2, pady=10, sticky="w", padx=10)
         self.cb_customer_services.grid(row=7, column=1, padx=10, sticky="s")
 
+        self.b_create.grid(row=9, column=0, columnspan=2, pady=10)
         self.l_inspection_report.grid(row=10, column=0, columnspan=2, pady=10)
         self.l_accident_report_text.grid(row=11, column=0, columnspan=2, padx=10)
         self.b_submit.grid(row=12, column=0, columnspan=2, pady=10)
@@ -86,8 +91,9 @@ class Inspection:
                
     def display(self):
         accident_date = self.e_date.get()
+        self.e_time.insert(END, "self.current_time")
         accident_place = self.e_place.get()
-        accident_time = self.e_time.get()
+        
         addon_services = self.addon_var.get()
         customer_services = self.customer_services_var.get()
         company_id = 1
@@ -96,12 +102,10 @@ class Inspection:
 
         
         try: 
-            
+           
             # Assuming you have a table named 'inspection_report'
-            cursor.execute(f"SELECT car_no FROM car where cust_id = {self.cus_id}")
-            car_no = cursor.fetchone()[0]
-            print(self.cus_id)
-            cursor.execute("INSERT INTO accident(a_place, a_time, a_date, car_no) VALUES (%s, %s, %s, %s)", (accident_place, accident_time, accident_date, car_no))
+            car_no = cursor.execute("SELECT car_no FROM car where cust_id = 101")
+            cursor.execute("INSERT INTO accident(a_place, a_time, a_date, car_no) VALUES (%s, %s, %s, %s)", (accident_place, current_time, accident_date, car_no))
             # cursor.execute("INSERT INTO services(s_addOn, s_cust, c_id) VALUES (%s, %s, %d)",(addon_services, customer_services, company_id))
             conn.commit() 
             print("Data Inserted") 
@@ -115,13 +119,11 @@ class Inspection:
  
     def inspection_report(self): 
         try:
-            cursor.execute("INSERT INTO accident(a_report, a_place, a_time, a_date, car_no) VALUES (%s, %s, %s, %s, %s)", (accident_report, accident_place, accident_time, accident_date, car_no))
             cursor.execute(f"SELECT * FROM accident a, car c where c.car_no = a.car_no and c.car_no =(SELECT car_no FROM car where cust_id={self.cus_id})")
             result = cursor.fetchone()
             if result:
                 report_text = f"Accident Date: {result[1]}\nAccident Time: {result[2]}\nAccident Place: {result[3]}\nAddOn Services: {result[4]}\nCustomer Services: {result[5]}"
                 self.accident_report_text.set(report_text)
-                return report_text
         except Exception as e:
             print(f"Error fetching inspection report: {e}")
 

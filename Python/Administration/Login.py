@@ -2,14 +2,14 @@ import tkinter as tk
 from tkinter import messagebox
 import mysql.connector
 
-conn = mysql.connector.connect(user='root', password='%Rachit404%', host='localhost', database='insurance_company')
+conn = mysql.connector.connect(user='root', password='pass@123', host='localhost', database='insurance_company')
 cursor = conn.cursor()
 
 class Login: 
     def __init__(self, root): 
         self.root = root
 
-        self.background_image = tk.PhotoImage(file="Insurance-System\images\orange.png")  # Replace with your background image path
+        self.background_image = tk.PhotoImage(file="images/orange.png")  # Replace with your background image path
 
         self.background_label = tk.Label(root, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
@@ -30,7 +30,7 @@ class Login:
 
         self.password_label = tk.Label(self.login_frame, text="Password:", bg="#FFF6F4",fg="#525FE1", font=("Times", 14, "bold"))
         self.password_label.grid(row=2, column=0, padx=10, pady=10)
-        self.password_entry = tk.Entry(self.login_frame, show="*", font=("Times", 14))
+        self.password_entry = tk.Entry(self.login_frame, show="●", font=("Times", 14))
         self.password_entry.grid(row=2, column=1, padx=10, pady=10)
 
         self.user_type_label = tk.Label(self.login_frame, text="User Type:", bg="#FFF6F4",fg="#525FE1", font=("Times", 14, "bold"))
@@ -59,7 +59,7 @@ class Login:
         cursor.execute(f"SELECT cust_id FROM customer where cust_name like \'{self.username}\' and cust_pass like\'{self.password}\' ;")
         custid = cursor.fetchone()[0]
         
-        file_path = "Insurance-System\Python\Administration\custid.txt"
+        file_path = "Python/Administration/custid.txt"
         with open(file_path, 'w') as file:
         # Write content to the file
             file.write(custid)
