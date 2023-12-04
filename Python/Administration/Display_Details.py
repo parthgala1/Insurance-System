@@ -7,6 +7,7 @@ cursor = conn.cursor()
 
 class Display: 
     def __init__(self, root, canvas): 
+        self.root = root
         self.canvas = canvas        
         self.background_image = PhotoImage(file="images/blue.png")  # Replace with your background image path
         self.background_label = Label(root, image=self.background_image)
@@ -128,14 +129,88 @@ class Display:
         
         self.display()
         
+        self.submit = Button(self.f, text="UPDATE", command=self.update, font=("Times", 16, "bold"), bg="#525FE1", fg="#FFF6F4")
+        self.submit.grid(row=15, column=1,columnspan=3, pady=5, padx=50)
+        
         self.submit = Button(self.f, text="DELETE", command=self.delete, font=("Times", 16, "bold"), bg="#525FE1", fg="#FFF6F4")
         self.submit.grid(row=15, column=3,columnspan=3, pady=5, padx=50)
         
+        self.submit = Button(self.f, text="SUBMIT", command=self.root.destroy, font=("Times", 16, "bold"), bg="#525FE1", fg="#FFF6F4")
+        self.submit.grid(row=15, column=5,columnspan=3, pady=5, padx=50)
+        
+    def update(self):
+        self.root.destroy()
+        import Insurance_Details
+        
         
     def delete(self):
-        table_group ={"Online", "Offline", "payment", "car", "customer", "insurance", "accident"}
-        for table in table_group:
-            cursor.execute(f"TRUNCATE TABLE {table}")
+        cursor.execute(f"DELETE from insurance where cust_id={self.cus_id}")
+        conn.commit()
+        self.ip1.delete(1.0, END)
+        self.ac1.delete(1.0, END)
+        self.display_del()
+        
+    def display_del(self): 
+        print("----------View records-----------")
+        uid = 123
+        cursor.execute(f"SELECT * FROM customer where cust_id = {self.cus_id}")
+        rows = cursor.fetchall() 
+        
+        cursor.execute(f"SELECT * FROM car where cust_id = {self.cus_id}")
+        car_row = cursor.fetchall() 
+        
+        # try:
+        cursor.execute(f"SELECT * FROM accident a, car c where c.car_no = a.car_no and c.car_no =(SELECT car_no FROM car where cust_id={self.cus_id})")
+        result = cursor.fetchone()
+            
+        if result:
+            cursor.execute(f"SELECT * FROM accident a, car c where c.car_no = a.car_no and c.car_no =(SELECT car_no FROM car where cust_id={self.cus_id})")
+            result = cursor.fetchone()
+            report_text = f"Accident Date: {result[1]}\nAccident Time: {result[2]}\nAccident Place: {result[3]}\n"
+            self.ac1.insert(END, report_text)
+        cursor.execute(f"SELECT * FROM insurance where cust_id={self.cus_id}")
+        result1 = cursor.fetchone()
+        if result1:
+            ip_report_text = f"Inspection Date: {result1[1]}\nInspection Time: {result1[2]}\nInspection Place: {result1[3]}\n"
+            self.ip1.insert(END, ip_report_text)
+        # except Exception as e:
+        #     print(f"Error fetching inspection report: {e}")
+        
+        try: 
+            if len(rows) != 0:
+                # User Contact Info
+                for row in rows:
+                    self.e1.insert(END, f"{row[0]}\n")
+                    self.e2.insert(END, f"{row[1]}\n")
+                    self.e3.insert(END, f"{row[2]}\n")
+                    
+                    cursor.execute(f"SELECT * FROM custmob where cust_id={row[0]}")
+                    row_mob = cursor.fetchall()
+                    for row in row_mob:
+                        self.e4.insert(END, f"{row[1]}\n")
+                        
+                self.e1.config(state="readonly")
+                self.e2.config(state="readonly")
+                self.e3.config(state="readonly")
+                self.e4.config(state="readonly")
+                
+                # Car Info:
+                for row in car_row:
+                    self.c1.insert(END, f"{row[0]}\n")
+                    self.c2.insert(END, f"{row[2]}\n")
+                    self.c3.insert(END, f"{row[3]}\n")
+                    self.c4.insert(END, f"{row[1]}\n")
+                    print(row)
+                        
+                self.c1.config(state="readonly")
+                self.c2.config(state="readonly")
+                self.c3.config(state="readonly")
+                self.c4.config(state="readonly")
+                 
+                
+        except Exception as e: 
+            print(f"Error: {e}")
+        
     def get_insurance_amount(self):
         try:
             cursor.execute("SELECT ip_amt FROM insurance LIMIT 1")
@@ -180,11 +255,13 @@ class Display:
             cursor.execute(f"SELECT * FROM accident a, car c where c.car_no = a.car_no and c.car_no =(SELECT car_no FROM car where cust_id={self.cus_id})")
             result = cursor.fetchone()
             report_text = f"Accident Date: {result[1]}\nAccident Time: {result[2]}\nAccident Place: {result[3]}\n"
+            self.ac1.delete(1.0, END)
             self.ac1.insert(END, report_text)
         cursor.execute(f"SELECT * FROM insurance where cust_id={self.cus_id}")
         result1 = cursor.fetchone()
         if result1:
             ip_report_text = f"Inspection Date: {result1[1]}\nInspection Time: {result1[2]}\nInspection Place: {result1[3]}\n"
+            self.ip1.delete(1.0, END)
             self.ip1.insert(END, ip_report_text)
         # except Exception as e:
         #     print(f"Error fetching inspection report: {e}")
